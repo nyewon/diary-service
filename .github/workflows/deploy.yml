@@ -1,0 +1,27 @@
+name: Deploy Diary Service
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to OCIR
+        run: |
+          echo "${{ secrets.OCIR_AUTH_TOKEN }}" | docker login \
+            -u "${{ secrets.OCIR_USERNAME }}" \
+            --password-stdin ap-chuncheon-1.ocir.io
+
+      - name: Build Docker image
+        run: docker build -t diary-service .
+
+      - name: Tag image
+        run: docker tag diary-service ap-chuncheon-1.ocir.io/axuvlb6gzvbg/diary/app:diary-latest
+
+      - name: Push to OCIR
+        run: docker push ap-chuncheon-1.ocir.io/axuvlb6gzvbg/diary/app:diary-latest
